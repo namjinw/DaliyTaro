@@ -11,6 +11,8 @@ final buttonColor = [
 ];
 const labelColor = Color(0xffa6a6a6);
 
+double sizew(context) => MediaQuery.sizeOf(context).width;
+
 ShowSnacker(context, icon, text) => ScaffoldMessenger.of(context).showSnackBar(
   SnackBar(
     duration: Duration(seconds: 1),

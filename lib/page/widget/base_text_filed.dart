@@ -43,7 +43,7 @@ class _BaseTextFiledState extends State<BaseTextFiled> {
             border: InputBorder.none,
             enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(width: 1, color: Colors.white)
+                borderSide: BorderSide(width: 1, color: Colors.white.withAlpha(150))
             ),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:dailytarget/controller/user_controller.dart';
 import 'package:dailytarget/page/component/age_enter.dart';
+import 'package:dailytarget/page/component/birth_enter.dart';
 import 'package:dailytarget/page/component/gender_enter.dart';
 import 'package:dailytarget/page/component/name_enter.dart';
 import 'package:dailytarget/page/widget/base_text_filed.dart';
@@ -24,7 +25,6 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
 
   final PageController _pageController = PageController();
   int _index = 1;
-
 
   @override
   void initState() {
@@ -92,21 +92,37 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
 
   Widget flowItem() => Stack(children: [moon(), guide(), progress()]);
 
-  Widget progress() => Positioned(
-    left: 0,
-    right: 0,
-    bottom: 0,
-    child: AnimatedOpacity(
-      opacity: (_index == 1 || _index == 7) ? 0 : 1,
-      duration: Duration(milliseconds: 300),
-      child: LinearProgressIndicator(
-        value: ((_index - 1) / 5),
-        backgroundColor: Colors.grey,
-        color: Colors.white,
-        minHeight: 8,
+  Widget progress() {
+    final count = (_index == 1 || _index == 7) ? 0 : _index - 1;
+
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: AnimatedOpacity(
+        opacity: (_index == 1 || _index == 7) ? 0 : 1,
+        duration: Duration(milliseconds: 300),
+        child: Container(
+          width: sizew(context),
+          height: 8,
+          color: Colors.white.withAlpha(100),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            spacing: 2,
+            children: List.generate(count, (index) {
+              return Container(
+                width: sizew(context) / 5 - 2,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: .circular(8),
+                ),
+              );
+            }),
+          ),
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   Widget guide() => Align(
     alignment: .center,
@@ -118,16 +134,21 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
         setState(() {});
       },
       physics: NeverScrollableScrollPhysics(),
-      children: [intro(), nameEnter(), ageEnter(), genderEnter()],
+      children: [intro(), nameEnter(), ageEnter(), genderEnter(), birthEnter()],
     ),
   );
 
   Widget nameEnter() =>
-      baseEnter('이름을 입력해주세요.', NameEnter(pageController: _pageController,));
+      baseEnter('이름을 입력해주세요.', NameEnter(pageController: _pageController));
 
-  Widget ageEnter() => baseEnter('나이를 입력해주세요.', AgeEnter(pageController: _pageController));
+  Widget ageEnter() =>
+      baseEnter('나이를 입력해주세요.', AgeEnter(pageController: _pageController));
 
-  Widget genderEnter() => baseEnter('성별를 입력해주세요.', GenderEnter(pageController: _pageController));
+  Widget genderEnter() =>
+      baseEnter('성별를 입력해주세요.', GenderEnter(pageController: _pageController));
+
+  Widget birthEnter() =>
+      baseEnter('태어난 날짜를 입력해주세요.', BirthEnter(pageController: _pageController));
 
   Widget baseEnter(text, child) => Stack(
     children: [
