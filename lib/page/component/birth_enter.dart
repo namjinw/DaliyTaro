@@ -17,16 +17,8 @@ class BirthEnter extends StatefulWidget {
 }
 
 class _BirthEnterState extends State<BirthEnter> {
+  final now = DateTime.now();
   DateTime birth = UserController.user.value.birth;
-
-  void valid() {
-    UserController.user.value.birth = birth;
-    setState(() {});
-    widget.pageController.nextPage(
-      duration: Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-    );
-  }
 
   List<DateTime> thisMonth(DateTime nowMonth) {
     final first = DateTime(nowMonth.year, nowMonth.month, 1);
@@ -62,18 +54,78 @@ class _BirthEnterState extends State<BirthEnter> {
       left: 0,
       right: 0,
       top: 280,
-      child: Center(
-        child: calender(),
-      ),
+      child: Center(child: calender()),
     );
   }
 
   Widget calender() {
     return Column(
       crossAxisAlignment: .center,
-      children: [
-        Text(
-          '${birth.year}.${birth.month}',
+      children: [yearMonth(), SizedBox(height: 10), days()],
+    );
+  }
+
+  Widget yearMonth() => Row(
+    mainAxisAlignment: .center,
+    children: [
+      yearList(),
+      Text(
+        '.',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: .w600,
+          fontFamily: nanun,
+          fontSize: 26,
+        ),
+      ),
+      monthList(),
+    ],
+  );
+
+  Widget yearList() => list(
+    '${birth.year}',
+    (value) {
+      birth = DateTime(value, birth.month, birth.day);
+      setState(() {});
+    },
+    List.generate(
+      100,
+      (index) => PopupMenuItem(
+        child: Center(child: item(now.year - index)),
+        value: now.year - index,
+      ),
+    ),
+  );
+
+  Widget monthList() => list(
+    '${birth.month}',
+    (value) {
+      birth = DateTime(birth.year, value, birth.day);
+      setState(() {});
+    },
+    List.generate(
+      12,
+      (index) => PopupMenuItem(
+        child: Center(child: item(index + 1)),
+        value: index + 1,
+      ),
+    ),
+  );
+
+  Widget list(text, onChange, generate) => Material(
+    color: Colors.transparent,
+    child: InkWell(
+      onTap: () {},
+      child: PopupMenuButton(
+        onSelected: onChange,
+        constraints: BoxConstraints(maxHeight: 300, maxWidth: 80),
+        offset: Offset(0, 35),
+        color: buttonColor.last,
+        itemBuilder: (context) {
+          return generate;
+        },
+        child: Text(
+          text,
           style: TextStyle(
             color: Colors.white,
             fontWeight: .w600,
@@ -81,11 +133,21 @@ class _BirthEnterState extends State<BirthEnter> {
             fontSize: 26,
           ),
         ),
-        SizedBox(height: 10,),
-        days(),
-      ],
-    );
-  }
+      ),
+    ),
+  );
+
+  Widget item(text) => GestureDetector(
+    child: Text(
+      '${text}',
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: .w600,
+        fontFamily: nanun,
+        fontSize: 20,
+      ),
+    ),
+  );
 
   Widget days() {
     List<DateTime> selectBirth = thisMonth(birth);
@@ -97,30 +159,51 @@ class _BirthEnterState extends State<BirthEnter> {
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 7,
         ),
-        children: List.generate(selectBirth.length, (index) => dayItem(selectBirth[index].day, selectBirth[index]),),
+        children: List.generate(
+          selectBirth.length,
+          (index) => dayItem(selectBirth[index].day, selectBirth[index]),
+        ),
       ),
     );
   }
 
   Widget dayItem(index, DateTime selectBirth) {
+    final selectedMonth = birth.month == selectBirth.month
+        ? Colors.white
+        : Colors.white.withAlpha(100);
 
-    final double selectedDay = birth.month == selectBirth.month || birth.day == selectBirth.day ? 1 : 0;
-    final selectedMonth = birth.month == selectBirth.month ? Colors.white : Colors.white.withAlpha(100);
+    return Container(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            birth = DateTime(
+              selectBirth.year,
+              selectBirth.month,
+              selectBirth.day,
+              UserController.user.value.birth.hour,
+              UserController.user.value.birth.minute,
+            );
+            UserController.user.value.birth = birth;
+            final re = UserController.returnPageIndex;
+            print(re);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          birth = DateTime(selectBirth.year, selectBirth.month, selectBirth.day);
-          print(birth);
-          setState(() {});
-        },
-        borderRadius: .circular(30),
-        child: Center(
-          child: Container(
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.white.withAlpha(150), width: selectedDay)
-            ),
+            if (re != null) {
+              UserController.returnPageIndex = null;
+              widget.pageController.animateToPage(
+                re,
+                duration: Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+              );
+            } else {
+              widget.pageController.nextPage(
+                duration: Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+              );
+            }
+          },
+          borderRadius: .circular(30),
+          child: Center(
             child: Text(
               '${index}',
               style: TextStyle(

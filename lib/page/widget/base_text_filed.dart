@@ -21,6 +21,7 @@ class _BaseTextFiledState extends State<BaseTextFiled> {
       child: TextFormField(
         controller: widget.controller,
         onEditingComplete: () {
+          print(widget.controller.value);
           widget.validate();
           FocusScope.of(context).unfocus();
         },

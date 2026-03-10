@@ -18,7 +18,7 @@ class User {
       name: '',
       age: 1,
       gender: '',
-      birth: DateTime(DateTime.now().year, DateTime.now().month, 1),
+      birth: DateTime(DateTime.now().year, DateTime.now().month, 1, 9),
       birthTime: '21:00',
     );
   }

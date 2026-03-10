@@ -3,12 +3,16 @@ import 'dart:math' as math;
 import 'package:dailytarget/controller/user_controller.dart';
 import 'package:dailytarget/page/component/age_enter.dart';
 import 'package:dailytarget/page/component/birth_enter.dart';
+import 'package:dailytarget/page/component/birth_time_enter.dart';
+import 'package:dailytarget/page/component/check_enter.dart';
 import 'package:dailytarget/page/component/gender_enter.dart';
 import 'package:dailytarget/page/component/name_enter.dart';
+import 'package:dailytarget/page/home.dart';
 import 'package:dailytarget/page/widget/base_text_filed.dart';
 import 'package:dailytarget/page/widget/cloud.dart';
 import 'package:dailytarget/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class DailyTargetFlowPage extends StatefulWidget {
   const DailyTargetFlowPage({super.key});
@@ -93,6 +97,7 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
   Widget flowItem() => Stack(children: [moon(), guide(), progress()]);
 
   Widget progress() {
+    final totalStep = 5;
     final count = (_index == 1 || _index == 7) ? 0 : _index - 1;
 
     return Positioned(
@@ -108,17 +113,26 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
           color: Colors.white.withAlpha(100),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            spacing: 2,
-            children: List.generate(count, (index) {
-              return Container(
-                width: sizew(context) / 5 - 2,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: .circular(8),
-                ),
-              );
+            children: List.generate(totalStep * 2 - 1, (index) {
+              if (index.isOdd) {
+                return SizedBox(width: 2,);
+              }
+              print(index);
+              print(index ~/ 2);
+              return inputState(index ~/ 2 + 1, count);
             }),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget inputState(index, count) {
+    return Expanded(
+      child: Container(
+        decoration: BoxDecoration(
+          color: index <= count ? Colors.white : Colors.transparent,
+          borderRadius: .circular(8),
         ),
       ),
     );
@@ -134,7 +148,15 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
         setState(() {});
       },
       physics: NeverScrollableScrollPhysics(),
-      children: [intro(), nameEnter(), ageEnter(), genderEnter(), birthEnter()],
+      children: [
+        intro(),
+        nameEnter(),
+        ageEnter(),
+        genderEnter(),
+        birthEnter(),
+        birthTimeEnter(),
+        checkEnter(),
+      ],
     ),
   );
 
@@ -150,6 +172,16 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
   Widget birthEnter() =>
       baseEnter('태어난 날짜를 입력해주세요.', BirthEnter(pageController: _pageController));
 
+  Widget birthTimeEnter() => baseEnter(
+    '태어난 시간을 입력해주세요.',
+    BirthTimeEnter(pageController: _pageController),
+  );
+
+  Widget checkEnter() => baseEnter(
+    '입력한 정보가 맞는지 해주세요.',
+    CheckEnter(pageController: _pageController),
+  );
+
   Widget baseEnter(text, child) => Stack(
     children: [
       Positioned(right: 0, left: 0, top: 100, child: logo(text)),
@@ -162,38 +194,79 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
     bottom: 70,
     right: 0,
     left: 0,
-    child: Center(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            _pageController.previousPage(
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
-          },
-          child: Container(
-            width: 100,
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: .circular(50),
-              color: Colors.white.withAlpha(30),
+    child: _index == 7
+        ? button(
+            () => Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+              (route) => false,
             ),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: .center,
-                children: [
-                  Icon(Icons.arrow_back_ios, color: Colors.white, size: 25),
-                  Text(
-                    '이전',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: .w600,
-                    ),
+          )
+        : Row(
+            spacing: 15,
+            mainAxisAlignment: .center,
+            children: [prev(), _index == 6 ? NoKnow() : SizedBox()],
+          ),
+  );
+
+  prev() => bottomButton(
+    () {
+      _pageController.previousPage(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    },
+    '이전',
+    false,
+  );
+
+  NoKnow() => bottomButton(
+    () {
+      _pageController.nextPage(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    },
+    '잘 모르겠어요',
+    true,
+  );
+
+  Widget bottomButton(ontap, text, useRight) => Center(
+    child: Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: .circular(50),
+        onTap: ontap,
+        child: Container(
+          padding: .symmetric(horizontal: 25, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: .circular(50),
+            color: Colors.white.withAlpha(30),
+          ),
+          child: Center(
+            child: Row(
+              mainAxisAlignment: .center,
+              spacing: 5,
+              children: [
+                !useRight
+                    ? Icon(Icons.arrow_back_ios, color: Colors.white, size: 22)
+                    : SizedBox(),
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: .w500,
                   ),
-                ],
-              ),
+                ),
+                useRight
+                    ? Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.white,
+                        size: 22,
+                      )
+                    : SizedBox(),
+              ],
             ),
           ),
         ),
@@ -201,10 +274,20 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
     ),
   );
 
-  Widget intro() =>
-      Column(mainAxisAlignment: .center, children: [guideMenu(), button()]);
+  Widget intro() => Column(
+    mainAxisAlignment: .center,
+    children: [
+      guideMenu(),
+      button(
+        () => _pageController.nextPage(
+          duration: Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        ),
+      ),
+    ],
+  );
 
-  Widget button() => Column(
+  Widget button(ontap) => Column(
     children: [
       SizedBox(height: 80),
       AnimatedOpacity(
@@ -236,10 +319,7 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: .circular(60),
-              onTap: () => _pageController.nextPage(
-                duration: Duration(milliseconds: 400),
-                curve: Curves.easeInOut,
-              ),
+              onTap: ontap,
               child: Row(
                 mainAxisAlignment: .center,
                 children: [

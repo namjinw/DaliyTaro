@@ -27,16 +27,28 @@ class _AgeEnterState extends State<AgeEnter> {
       ShowSnacker(context, Icons.error_outline, '숫자를 입력해주세요!');
       return;
     }
-    if (int.parse(text) < 1) {
+    if (int.parse(text) < 1 || int.parse(text) > 110) {
       ShowSnacker(context, Icons.error_outline, '제대로된 나이를 입력해주세요!');
       return;
     }
     UserController.user.value.age = int.parse(text);
     setState(() {});
-    widget.pageController.nextPage(
-      duration: Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-    );
+    final re = UserController.returnPageIndex;
+    print(re);
+
+    if (re != null) {
+      UserController.returnPageIndex = null;
+      widget.pageController.animateToPage(
+        re,
+        duration: Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      widget.pageController.nextPage(
+        duration: Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override

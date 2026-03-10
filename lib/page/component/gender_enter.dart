@@ -22,10 +22,22 @@ class _GenderEnterState extends State<GenderEnter> {
   void valid() {
     UserController.user.value.gender = gender;
     setState(() {});
-    widget.pageController.nextPage(
-      duration: Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-    );
+    final re = UserController.returnPageIndex;
+    print(re);
+
+    if (re != null) {
+      UserController.returnPageIndex = null;
+      widget.pageController.animateToPage(
+        re,
+        duration: Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      widget.pageController.nextPage(
+        duration: Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
