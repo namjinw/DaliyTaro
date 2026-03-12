@@ -32,11 +32,19 @@ class _NameEnterState extends State<NameEnter> {
     }
 
     UserController.user.value.name = name;
-    setState(() {});
     print(UserController.user.value.name);
+
+    if (UserController.backIndex != null) {
+      UserController.pageIndex.value = UserController.backIndex!;
+      UserController.backIndex = null;
+      FocusScope.of(context).unfocus();
+      setState(() {});
+      return;
+    }
 
     FocusScope.of(context).unfocus();
     UserController.pageIndex.value++;
+    setState(() {});
   }
 
   void _showMessage(String text) {

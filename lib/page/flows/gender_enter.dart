@@ -14,6 +14,21 @@ class GenderEnter extends StatefulWidget {
 class _GenderEnterState extends State<GenderEnter> {
   final TextEditingController _ageController = TextEditingController();
 
+  void next(String gender) {
+    UserController.user.value.gender = gender;
+
+    if (UserController.backIndex != null) {
+      UserController.pageIndex.value = UserController.backIndex!;
+      UserController.backIndex = null;
+      FocusScope.of(context).unfocus();
+      setState(() {});
+      return;
+    }
+
+    UserController.pageIndex.value++;
+    setState(() {});
+  }
+
   @override
   void dispose() {
     _ageController.dispose();
@@ -42,11 +57,7 @@ class _GenderEnterState extends State<GenderEnter> {
     color: Colors.transparent,
     child: InkWell(
       borderRadius: .circular(18),
-      onTap: () {
-        UserController.user.value.gender = gender;
-        UserController.pageIndex.value++;
-        setState(() {});
-      },
+      onTap: () => next(gender),
       child: Container(
         padding: const .all(10),
         width: size,

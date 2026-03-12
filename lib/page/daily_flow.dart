@@ -3,8 +3,10 @@ import 'dart:math' as math;
 import 'package:dailytaro/page/flows/age_enter.dart';
 import 'package:dailytaro/page/flows/birth_enter.dart';
 import 'package:dailytaro/page/flows/birth_time_enter.dart';
+import 'package:dailytaro/page/flows/check_enter.dart';
 import 'package:dailytaro/page/flows/gender_enter.dart';
 import 'package:dailytaro/page/flows/name_enter.dart';
+import 'package:dailytaro/utils/base_widget.dart';
 import 'package:dailytaro/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -54,66 +56,100 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
           alignment: .center,
           children: [
             moon(),
+            cloud(),
             guide(),
             page(),
-            cloud(),
             bottomBar(),
-            UserController.pageIndex.value == 0 || UserController.pageIndex.value == 6 ? SizedBox() : stateButton(),
+            UserController.pageIndex.value == 0 ||
+                    UserController.pageIndex.value == 6
+                ? SizedBox()
+                : stateButton(),
           ],
         ),
       ),
     ),
   );
 
-  Widget stateButton() => Positioned(
-    left: 0,
-    right: 0,
-    bottom: 60,
-    child: AnimatedOpacity(
-      duration: Duration(milliseconds: 200),
-      opacity: UserController.pageIndex.value == 0 || UserController.pageIndex.value == 6 ? 0 : 1,
-      child: Row(
-        mainAxisAlignment: .center,
-        children: [
-          stateItem('이전'),
-        ],
-      ),
-    ),
-  );
+  Widget stateButton() {
+    final stateShow =
+        UserController.pageIndex.value == 0 ||
+        UserController.pageIndex.value == 6;
 
-  Widget stateItem(text) => Material(
-    color: Colors.transparent,
-    child: InkWell(
-      borderRadius: .circular(40),
-      onTap: () {
-        UserController.pageIndex.value--;
-        print(UserController.pageIndex.value);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-            color: stateButtonColor,
-            borderRadius: .circular(40)
-        ),
-        padding: EdgeInsets.only(right: 24, left: 12, top: 12, bottom: 12),
+    final backState = UserController.backIndex != null;
+
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 60,
+      child: AnimatedOpacity(
+        duration: Duration(milliseconds: 200),
+        opacity: backState ? 0 : (stateShow ? 0 : 1),
         child: Row(
-          spacing: 5,
+          spacing: 12,
           mainAxisAlignment: .center,
           children: [
-            SvgPicture.asset('assets/icons/arrow.svg', height: 25,),
-            Text(
-              text,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontFamily: noto,
-                fontWeight: .w500,
-              ),
-            ),
+            stateItem('이전', () {
+              UserController.pageIndex.value--;
+              print(UserController.pageIndex.value);
+            }),
+            UserController.pageIndex.value == 5
+                ? stateItem('잘 모르겠어요', () {
+                    UserController.pageIndex.value++;
+                    print(UserController.pageIndex.value);
+                  }, useRightArro: true)
+                : SizedBox(),
           ],
         ),
       ),
-    ),
-  );
+    );
+  }
+
+  Widget stateItem(text, ontap, {useRightArro = false}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: .circular(40),
+        onTap: ontap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: stateButtonColor,
+            borderRadius: .circular(40),
+          ),
+          padding: .symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            spacing: 5,
+            mainAxisAlignment: .center,
+            children: [
+              !useRightArro
+                  ? SizedBox(
+                      width: 25,
+                      child: SvgPicture.asset('assets/icons/arrow.svg'),
+                    )
+                  : SizedBox(),
+              Text(
+                text,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontFamily: noto,
+                  fontWeight: .w500,
+                ),
+              ),
+              useRightArro
+                  ? SizedBox(
+                      width: 25,
+                      child: Transform.flip(
+                        flipX: true,
+                        child: SvgPicture.asset('assets/icons/arrow.svg'),
+                      ),
+                    )
+                  : SizedBox(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget bottomBar() => Positioned(
     bottom: 0,
@@ -121,8 +157,8 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
     right: 0,
     child: AnimatedOpacity(
       opacity:
-      UserController.pageIndex.value == 0 ||
-          UserController.pageIndex.value == 6
+          UserController.pageIndex.value == 0 ||
+              UserController.pageIndex.value == 6
           ? 0
           : 1,
       duration: Duration(milliseconds: 400),
@@ -144,8 +180,8 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
 
   Widget bottomItem(index) {
     final count =
-    UserController.pageIndex.value == 0 ||
-        UserController.pageIndex.value == 6
+        UserController.pageIndex.value == 0 ||
+            UserController.pageIndex.value == 6
         ? 0
         : UserController.pageIndex.value;
 
@@ -160,7 +196,17 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
   }
 
   Widget page() {
-    List<Widget> _pages = [button('시작하기'), NameEnter(), AgeEnter(), GenderEnter(), BirthEnter(), BirthTimeEnter()];
+    List<Widget> _pages = [
+      BaseWidget.button(() {
+        UserController.pageIndex.value++;
+      }, 235.0),
+      NameEnter(),
+      AgeEnter(),
+      GenderEnter(),
+      BirthEnter(),
+      BirthTimeEnter(),
+      CheckEnter(),
+    ];
 
     return Stack(
       children: [
@@ -179,72 +225,13 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
     );
   }
 
-  Widget button(text) => Padding(
-    padding: const EdgeInsets.only(top: 235.0),
-    child: Container(
-      width: 190,
-      height: 60,
-      decoration: BoxDecoration(
-        borderRadius: .circular(60),
-        boxShadow: [
-          BoxShadow(
-            color: buttonColor.first.withAlpha(80),
-            blurRadius: 20,
-            offset: Offset(0, 8),
-          ),
-        ],
-        gradient: LinearGradient(
-          begin: .topLeft,
-          end: .bottomCenter,
-          stops: [0.1, 0.9],
-          colors: buttonColor,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            UserController.pageIndex.value++;
-          },
-          borderRadius: .circular(60),
-          child: Row(
-            mainAxisAlignment: .center,
-            crossAxisAlignment: .center,
-            children: [
-              Text(
-                text,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 17,
-                  fontWeight: .w800,
-                ),
-              ),
-
-              SizedBox(
-                width: 25,
-                child: Transform(
-                  transform: Matrix4.translationValues(30, 0, 0)
-                    ..rotateY(math.pi),
-                  child: SvgPicture.asset(
-                    'assets/icons/arrow.svg',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-
   Widget cloud() => Stack(
     children: [
-      right(72, -5),
-      right(38, -65),
-      left(60, 190),
-      left(-5, 210),
-      right(-27, 20),
+      right(62, -5),
+      right(28, -65),
+      left(50, 190),
+      left(-15, 210),
+      right(-37, 20),
     ],
   );
 

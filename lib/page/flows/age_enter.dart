@@ -36,6 +36,15 @@ class _AgeEnterState extends State<AgeEnter> {
     }
 
     UserController.user.value.age = int.tryParse(age) ?? 0;
+
+    if (UserController.backIndex != null) {
+      UserController.pageIndex.value = UserController.backIndex!;
+      UserController.backIndex = null;
+      FocusScope.of(context).unfocus();
+      setState(() {});
+      return;
+    }
+
     setState(() {});
     print(UserController.user.value.age);
     

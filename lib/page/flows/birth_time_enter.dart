@@ -24,15 +24,42 @@ class _BirthTimeEnterState extends State<BirthTimeEnter> {
   void onSelect(int value) {
     setState(() {
       if (timeChange) {
-        // 시간 모드일 때 (AM/PM 고려)
         int h = isAM ? (value == 12 ? 0 : value) : (value == 12 ? 12 : value + 12);
         birthTime = DateTime(birthTime.year, birthTime.month, birthTime.day, h, birthTime.minute);
+        UserController.user.value.birth = birthTime;
       } else {
-        // 분 모드일 때
         birthTime = DateTime(birthTime.year, birthTime.month, birthTime.day, birthTime.hour, value);
+
+        UserController.user.value.birth = birthTime;
+
+        if (UserController.backIndex != null) {
+          UserController.pageIndex.value = UserController.backIndex!;
+          UserController.backIndex = null;
+          FocusScope.of(context).unfocus();
+          setState(() {});
+          return;
+        }
+
+        UserController.pageIndex.value++;
       }
       print(birthTime);
     });
+  }
+
+  void updateAP() {
+
+    int currentHour = birthTime.hour;
+    int newHour = currentHour;
+
+    if (isAM && currentHour >= 12) {
+      newHour = currentHour - 12;
+    } else if (!isAM && currentHour < 12) {
+      newHour = currentHour + 12;
+    }
+
+    if (newHour != currentHour) birthTime = DateTime(birthTime.year, birthTime.month, birthTime.day, newHour, birthTime.minute);
+    print(birthTime);
+    setState(() {});
   }
 
   @override
@@ -77,7 +104,7 @@ class _BirthTimeEnterState extends State<BirthTimeEnter> {
     final number = timeChange ? hour : minute;
 
     final selected = timeChange
-        ? (hour == birthTime.hour)
+        ? (hour == (birthTime.hour % 12 == 0 ? 12 : birthTime.hour % 12))
         : (minute == birthTime.minute);
 
     final x = (size / 2 - 17) * math.cos(angle);
@@ -154,6 +181,7 @@ class _BirthTimeEnterState extends State<BirthTimeEnter> {
     constraints: BoxConstraints(maxHeight: 25, maxWidth: 42),
     onPressed: (index) {
       isAM = index == 0;
+      updateAP();
       setState(() {});
     },
     borderWidth: 1.3,

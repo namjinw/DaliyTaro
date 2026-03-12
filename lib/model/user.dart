@@ -12,6 +12,6 @@ class User {
   });
 
   factory User.empty() {
-    return User(name: '', age: 0, gender: 'M', birth: DateTime(DateTime.now().year, DateTime.now().month, 9, 0));
+    return User(name: '', age: 0, gender: 'M', birth: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 9, 0));
   }
 }

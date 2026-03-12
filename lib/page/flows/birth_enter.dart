@@ -41,6 +41,22 @@ class _BirthEnterState extends State<BirthEnter> {
     return date;
   }
 
+  void next(DateTime day) {
+    birth = day;
+    UserController.user.value.birth = birth;
+
+    if (UserController.backIndex != null) {
+      UserController.pageIndex.value = UserController.backIndex!;
+      UserController.backIndex = null;
+      FocusScope.of(context).unfocus();
+      setState(() {});
+      return;
+    }
+
+    UserController.pageIndex.value++;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -84,12 +100,7 @@ class _BirthEnterState extends State<BirthEnter> {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: .circular(30),
-        onTap: () {
-          birth = day;
-          UserController.user.value.birth = birth;
-          UserController.pageIndex.value++;
-          setState(() {});
-        },
+        onTap: () => next(day),
         child: Center(
           child: Text(
             '${day.day}',
@@ -116,7 +127,7 @@ class _BirthEnterState extends State<BirthEnter> {
     }),
     20,
     (value) {
-      birth = DateTime(birth.year, value);
+      birth = DateTime(birth.year, value, birth.day, birth.hour);
       print(birth);
       setState(() {});
     },
@@ -129,7 +140,7 @@ class _BirthEnterState extends State<BirthEnter> {
     }),
     0,
     (value) {
-      birth = DateTime(value, birth.month);
+      birth = DateTime(value, birth.month, birth.day, birth.hour);
       print(birth);
       setState(() {});
     },
