@@ -26,8 +26,8 @@ class _NameEnterState extends State<NameEnter> {
       _showMessage("이름을 입력해주세요!");
       return;
     }
-    if (name.length < 2) {
-      _showMessage("이름을 2자 이상 입력해주세요!");
+    if (name.length < 2 || name.length > 20) {
+      _showMessage("이름은 2자부터 20자까지 사이입니다!");
       return;
     }
 

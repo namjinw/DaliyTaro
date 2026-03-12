@@ -31,7 +31,7 @@ class _AgeEnterState extends State<AgeEnter> {
       return;
     }
     if (int.parse(age) < 1 || int.parse(age) > 100) {
-      _showMessage("나이는 1세부터 99세 사이로 입력해 주세요!");
+      _showMessage("나이는 1세부터 100세 사이로 입력해 주세요!");
       return;
     }
 

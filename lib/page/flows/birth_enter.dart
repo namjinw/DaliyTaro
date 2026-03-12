@@ -22,7 +22,8 @@ class _BirthEnterState extends State<BirthEnter> {
     final nowDay = last.day;
     print(nowDay);
     final week = first.weekday % 7;
-    final nextDay = 42 - (nowDay + week);
+    final totalDay = (nowDay + week) > 35 ? 42 : 35;
+    final nextDay = totalDay - (nowDay + week);
 
     final List<DateTime> date = [];
 

@@ -31,6 +31,44 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
     '입력한 정보가 맞는지 확인해주세요.',
   ];
 
+  bool showMoon = false;
+  bool showCloud = false;
+  bool showLogo = false;
+  bool showGraphic = false;
+  bool showLogoText = false;
+  bool showButton = false;
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(Duration(milliseconds: 500));
+
+      showMoon = true;
+      setState(() {});
+      await Future.delayed(Duration(milliseconds: 900));
+
+      showCloud = true;
+      setState(() {});
+      await Future.delayed(Duration(seconds: 1));
+
+      showLogo = true;
+      setState(() {});
+      await Future.delayed(Duration(milliseconds: 700));
+
+      showGraphic = true;
+      setState(() {});
+      await Future.delayed(Duration(milliseconds: 700));
+
+      showLogoText = true;
+      setState(() {});
+      await Future.delayed(Duration(milliseconds: 600));
+
+      showButton = true;
+      setState(() {});
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,15 +121,26 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
       bottom: 60,
       child: AnimatedOpacity(
         duration: Duration(milliseconds: 200),
-        opacity: backState ? 0 : (stateShow ? 0 : 1),
+        opacity: stateShow ? 0 : 1,
         child: Row(
           spacing: 12,
           mainAxisAlignment: .center,
           children: [
-            stateItem('이전', () {
-              UserController.pageIndex.value--;
-              print(UserController.pageIndex.value);
-            }),
+            backState
+                ? stateItem('돌아가기', () {
+                    if (UserController.backIndex != null) {
+                      UserController.pageIndex.value =
+                          UserController.backIndex!;
+                      UserController.backIndex = null;
+                      FocusScope.of(context).unfocus();
+                      setState(() {});
+                      return;
+                    }
+                  })
+                : stateItem('이전', () {
+                    UserController.pageIndex.value--;
+                    print(UserController.pageIndex.value);
+                  }),
             UserController.pageIndex.value == 5
                 ? stateItem('잘 모르겠어요', () {
                     UserController.pageIndex.value++;
@@ -152,7 +201,7 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
   }
 
   Widget bottomBar() => Positioned(
-    bottom: 0,
+    bottom: 24,
     left: 0,
     right: 0,
     child: AnimatedOpacity(
@@ -165,6 +214,7 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
       child: Container(
         width: MediaQuery.sizeOf(context).width,
         height: 8,
+        color: Colors.white.withAlpha(120),
         child: Row(
           mainAxisAlignment: .start,
           children: List.generate(9, (index) {
@@ -210,16 +260,20 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
 
     return Stack(
       children: [
-        AnimatedSwitcher(
-          duration: Duration(milliseconds: 200),
-          child: Container(
-            key: ValueKey(UserController.pageIndex.value),
-            padding: EdgeInsets.symmetric(horizontal: 54),
-            child: _pages[UserController.pageIndex.value],
+        AnimatedOpacity(
+          opacity: showButton ? 1 : 0,
+          duration: Duration(milliseconds: 700),
+          child: AnimatedSwitcher(
+            duration: Duration(milliseconds: 200),
+            child: Container(
+              key: ValueKey(UserController.pageIndex.value),
+              padding: EdgeInsets.symmetric(horizontal: 54),
+              child: _pages[UserController.pageIndex.value],
+            ),
+            transitionBuilder: (child, animation) {
+              return FadeTransition(opacity: animation, child: child);
+            },
           ),
-          transitionBuilder: (child, animation) {
-            return FadeTransition(opacity: animation, child: child);
-          },
         ),
       ],
     );
@@ -235,20 +289,14 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
     ],
   );
 
-  Widget right(double bottom, double right) => Positioned(
-    bottom: bottom,
+  Widget right(double bottom, double right) => AnimatedPositioned(
+    duration: Duration(milliseconds: 850),
+    curve: Curves.easeOutBack,
+    bottom: showCloud ? bottom : -20,
     right: right,
-    child: SizedBox(
-      width: 235,
-      child: Image.asset('assets/images/cloud.png', fit: BoxFit.contain),
-    ),
-  );
-
-  Widget left(double bottom, double left) => Positioned(
-    bottom: bottom,
-    left: left,
-    child: Transform(
-      transform: .rotationY(math.pi),
+    child: AnimatedOpacity(
+      duration: Duration(milliseconds: 400),
+      opacity: showCloud ? 1 : 0,
       child: SizedBox(
         width: 235,
         child: Image.asset('assets/images/cloud.png', fit: BoxFit.contain),
@@ -256,60 +304,102 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
     ),
   );
 
-  Widget guide() => AnimatedPositioned(
-    duration: Duration(milliseconds: 350),
+  Widget left(double bottom, double left) => AnimatedPositioned(
+    duration: Duration(milliseconds: 700),
     curve: Curves.easeOutBack,
-    left: 0,
-    top: UserController.pageIndex.value == 0 ? 245 : 150,
-    right: 0,
-    child: Column(
-      mainAxisAlignment: .center,
-      children: [
-        SizedBox(
-          width: 200,
-          child: Image.asset(
-            'assets/images/Daily Tarot.png',
-            fit: BoxFit.contain,
-          ),
+    bottom: showCloud ? bottom : -20,
+    left: left,
+    child: AnimatedOpacity(
+      duration: Duration(milliseconds: 400),
+      opacity: showCloud ? 1 : 0,
+      child: Transform(
+        transform: .rotationY(math.pi),
+        child: SizedBox(
+          width: 235,
+          child: Image.asset('assets/images/cloud.png', fit: BoxFit.contain),
         ),
-        Transform.translate(
-          offset: Offset(0, -12),
-          child: SizedBox(
-            width: 60,
-            child: Image.asset(
-              'assets/images/graphic.png',
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
-        Transform.translate(
-          offset: Offset(0, -20),
-          child: AnimatedSwitcher(
-            duration: Duration(milliseconds: 300),
-            transitionBuilder: (child, animation) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            child: Text(
-              _pageText[UserController.pageIndex.value],
-              key: ValueKey(_pageText[UserController.pageIndex.value]),
-              style: const TextStyle(
-                fontSize: 17,
-                color: Colors.white,
-                fontWeight: .w800,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     ),
   );
 
-  Widget moon() => Positioned(
-    top: 0,
+  Widget guide() {
+    final first = UserController.pageIndex.value == 0;
+
+    return AnimatedPositioned(
+      duration: Duration(milliseconds: 350),
+      curve: Curves.easeOutBack,
+      left: 0,
+      top: first ? 245 : 150,
+      right: 0,
+      child: Column(
+        mainAxisAlignment: .center,
+        children: [
+          AnimatedOpacity(
+            duration: Duration(milliseconds: 500),
+            opacity: showLogo ? 1 : 0,
+            child: SizedBox(
+              width: 200,
+              child: Image.asset(
+                'assets/images/Daily Tarot.png',
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          AnimatedOpacity(
+            duration: Duration(milliseconds: 300),
+            opacity: showGraphic ? 1 : 0,
+            child: Transform.translate(
+              offset: Offset(0, -12),
+              child: SizedBox(
+                width: 60,
+                child: Image.asset(
+                  'assets/images/graphic.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+          ),
+          AnimatedSlide(
+            duration: Duration(milliseconds: 650),
+            curve: Curves.easeOutBack,
+            offset: Offset(0, showLogoText ? -1 : 0),
+            child: AnimatedOpacity(
+              duration: Duration(milliseconds: 300),
+              opacity: showLogoText ? 1 : 0,
+              child: AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                child: Text(
+                  _pageText[UserController.pageIndex.value],
+                  key: ValueKey(_pageText[UserController.pageIndex.value]),
+                  style: const TextStyle(
+                    fontSize: 17,
+                    color: Colors.white,
+                    fontWeight: .w800,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget moon() => AnimatedPositioned(
+    duration: Duration(milliseconds: 400),
+    curve: Curves.easeIn,
+    top: showMoon ? 0 : 20,
     left: 0,
-    child: SizedBox(
-      width: 140,
-      child: Image.asset('assets/images/moon.png', fit: BoxFit.contain),
+    child: AnimatedOpacity(
+      duration: Duration(milliseconds: 350),
+      opacity: showMoon ? 1 : 0,
+      child: SizedBox(
+        width: 140,
+        child: Image.asset('assets/images/moon.png', fit: BoxFit.contain),
+      ),
     ),
   );
 }
