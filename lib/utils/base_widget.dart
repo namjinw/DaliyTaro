@@ -26,7 +26,7 @@ class BaseWidget {
       contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 20),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
-        borderSide: BorderSide(color: Colors.white.withAlpha(220), width: 1.2),
+        borderSide: BorderSide(color: Colors.white.withAlpha(200), width: 1.2),
       ),
       hintText: label,
       hintStyle: TextStyle(
@@ -37,7 +37,7 @@ class BaseWidget {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),
-        borderSide: BorderSide(color: Colors.white.withAlpha(150), width: 1.5),
+        borderSide: BorderSide(color: Colors.white.withAlpha(200), width: 1.5),
       ),
     ),
   );

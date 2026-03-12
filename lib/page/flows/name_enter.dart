@@ -1,9 +1,7 @@
-import 'package:dailytaro/controller/userController.dart';
 import 'package:dailytaro/utils/base_widget.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:dailytaro/utils/utils.dart';
 import 'package:flutter/material.dart';
-
-import '../../utils/utils.dart';
+import '../../controller/userController.dart';
 
 class NameEnter extends StatefulWidget {
   const NameEnter({super.key});
@@ -13,28 +11,50 @@ class NameEnter extends StatefulWidget {
 }
 
 class _NameEnterState extends State<NameEnter> {
-  final TextEditingController name = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
 
-  void valid(String text) {
-    final value = text.trim();
-    final icon = Icons.error_outline;
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
 
-    if (value.isEmpty) {
-      ShowSnackerBar(context, icon, '이름을 입력해주세요!');
-    } else if (value.length < 2 || value.length > 20) {
-      ShowSnackerBar(context, icon, '이름을 2자 이상 20자 이하로 입력해 주세요!');
+  void _next() {
+    final name = _nameController.text.trim();
+
+    if (name.isEmpty) {
+      _showMessage("이름을 입력해주세요!");
+      return;
     }
-    UserController.pageIndex.value++;
+    if (name.length < 2) {
+      _showMessage("이름을 2자 이상 입력해주세요!");
+      return;
+    }
+
+    UserController.user.value.name = name;
     setState(() {});
+    print(UserController.user.value.name);
+
+    FocusScope.of(context).unfocus();
+    UserController.pageIndex.value++;
+  }
+
+  void _showMessage(String text) {
+    ShowSnackerBar(context, Icons.error_outline, text);
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: .center,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        BaseWidget.baseFiled(name, '이름을 입력해주세요.', context, () => valid(name.text)),
-        const SizedBox(height: 130),
+        BaseWidget.baseFiled(
+          _nameController,
+          '이름을 입력해주세요.',
+          context,
+          _next,
+        ),
+        const SizedBox(height: 130,)
       ],
     );
   }

@@ -1,7 +1,6 @@
 import 'package:dailytaro/utils/base_widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import '../../controller/userController.dart';
 import '../../utils/utils.dart';
 
 class AgeEnter extends StatefulWidget {
@@ -12,29 +11,53 @@ class AgeEnter extends StatefulWidget {
 }
 
 class _AgeEnterState extends State<AgeEnter> {
-  final TextEditingController age = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
 
-  void valid(String text) {
-    final value = text.trim();
-    final int? intValue = int.tryParse(value);
-    final icon = Icons.error_outline;
+  @override
+  void dispose() {
+    _ageController.dispose();
+    super.dispose();
+  }
 
+  void _next() {
+    final age = _ageController.text.trim();
 
-    if (value.isEmpty) {
-      ShowSnackerBar(context, icon, '나이를 입력해 주세요!');
-    } else if (intValue == null) {
-      ShowSnackerBar(context, icon, '숫자를 입력해 주세요!');
-    } else if (intValue <= 0 || intValue > 100) {
-      ShowSnackerBar(context, icon, '나이는 1세부터 99세 사이로 입력해 주세요!');
+    if (age.isEmpty) {
+      _showMessage("나이을 입력해주세요!");
+      return;
     }
+    if (int.tryParse(age) == null) {
+      _showMessage("숫자를 입력해 주세요!");
+      return;
+    }
+    if (int.parse(age) < 1 || int.parse(age) > 100) {
+      _showMessage("나이는 1세부터 99세 사이로 입력해 주세요!");
+      return;
+    }
+
+    UserController.user.value.age = int.tryParse(age) ?? 0;
+    setState(() {});
+    print(UserController.user.value.age);
+    
+    FocusScope.of(context).unfocus();
+    UserController.pageIndex.value++;
+  }
+
+  void _showMessage(String text) {
+    ShowSnackerBar(context, Icons.error_outline, text);
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: .center,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        BaseWidget.baseFiled(age, '이름을 입력해주세요.', context, () => valid(age.text)),
+        BaseWidget.baseFiled(
+          _ageController,
+          '나이를 입력해주세요.',
+          context,
+          _next,
+        ),
         const SizedBox(height: 130),
       ],
     );

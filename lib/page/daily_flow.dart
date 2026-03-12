@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:dailytaro/page/flows/age_enter.dart';
+import 'package:dailytaro/page/flows/birth_enter.dart';
+import 'package:dailytaro/page/flows/birth_time_enter.dart';
+import 'package:dailytaro/page/flows/gender_enter.dart';
 import 'package:dailytaro/page/flows/name_enter.dart';
 import 'package:dailytaro/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -83,13 +86,13 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
     child: InkWell(
       borderRadius: .circular(40),
       onTap: () {
-        setState(() { UserController.pageIndex.value--; });
+        UserController.pageIndex.value--;
         print(UserController.pageIndex.value);
       },
       child: Container(
         decoration: BoxDecoration(
-          color: stateButtonColor,
-          borderRadius: .circular(40)
+            color: stateButtonColor,
+            borderRadius: .circular(40)
         ),
         padding: EdgeInsets.only(right: 24, left: 12, top: 12, bottom: 12),
         child: Row(
@@ -118,8 +121,8 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
     right: 0,
     child: AnimatedOpacity(
       opacity:
-          UserController.pageIndex.value == 0 ||
-              UserController.pageIndex.value == 6
+      UserController.pageIndex.value == 0 ||
+          UserController.pageIndex.value == 6
           ? 0
           : 1,
       duration: Duration(milliseconds: 400),
@@ -141,8 +144,8 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
 
   Widget bottomItem(index) {
     final count =
-        UserController.pageIndex.value == 0 ||
-            UserController.pageIndex.value == 6
+    UserController.pageIndex.value == 0 ||
+        UserController.pageIndex.value == 6
         ? 0
         : UserController.pageIndex.value;
 
@@ -157,13 +160,14 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
   }
 
   Widget page() {
-    List<Widget> _pages = [button('시작하기'), NameEnter(), AgeEnter()];
+    List<Widget> _pages = [button('시작하기'), NameEnter(), AgeEnter(), GenderEnter(), BirthEnter(), BirthTimeEnter()];
 
     return Stack(
       children: [
         AnimatedSwitcher(
           duration: Duration(milliseconds: 200),
           child: Container(
+            key: ValueKey(UserController.pageIndex.value),
             padding: EdgeInsets.symmetric(horizontal: 54),
             child: _pages[UserController.pageIndex.value],
           ),
@@ -201,7 +205,6 @@ class _DailyFlowPageState extends State<DailyFlowPage> {
         child: InkWell(
           onTap: () {
             UserController.pageIndex.value++;
-            setState(() {});
           },
           borderRadius: .circular(60),
           child: Row(
