@@ -1,3 +1,8 @@
+import 'package:dailytarget/controller/toast.dart';
+import 'package:dailytarget/controller/user_controller.dart';
+import 'package:dailytarget/page/moon_shop.dart';
+import 'package:dailytarget/page/soul_card.dart';
+import 'package:dailytarget/page/widget/cloud.dart';
 import 'package:dailytarget/util/util.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final user = UserController.user.value;
   final tarotImage = ['love_tarot.png', 'fruit_tarot.png'];
   final tarotText = ['인연타로', '열매타로'];
   final tarotSubtext1 = ['지금은 힘들지만 그래도,', '지금 생각하고 있는 일은'];
@@ -27,21 +33,182 @@ class _HomePageState extends State<HomePage> {
               colors: background,
             ),
           ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(height: 80),
-                logo(),
-                soulCardList(),
-                SizedBox(height: 40),
-                tarotList(),
-              ],
-            ),
-          ),
+          child: Stack(children: [homeScroll(), moonCount()]),
         ),
       ),
     );
   }
+
+  Widget moonCount() => Positioned(
+    top: 15,
+    right: 20,
+    child: ValueListenableBuilder(
+      valueListenable: UserController.user,
+      builder: (context, value, child) =>  GestureDetector(
+        onTap: () => Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const MoonShop()),
+          (route) => true,
+        ),
+        child: Row(
+          mainAxisSize: .min,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: .circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xfffcf38b).withAlpha(40),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              child: Image.asset('assets/images/moon.png', width: 35),
+            ),
+            Text(
+              '${value.moon}',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: .w800,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  Widget homeScroll() => SingleChildScrollView(
+    physics: RangeMaintainingScrollPhysics(),
+    child: Stack(
+      children: [
+        Positioned(
+          top: -20,
+          left: 0,
+          right: 0,
+          child: SizedBox(
+            height: 200,
+            child: Transform.scale(scaleY: -1, child: Cloud()),
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: SizedBox(height: 200, child: Cloud()),
+        ),
+        Column(
+          children: [
+            SizedBox(height: 80),
+            logo(),
+            soulCardList(),
+            SizedBox(height: 40),
+            tarotList(),
+            SizedBox(height: 30),
+            master(),
+            SizedBox(height: 100),
+          ],
+        ),
+      ],
+    ),
+  );
+
+  Widget master() => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+    child: Column(
+      crossAxisAlignment: .start,
+      children: [
+        Text(
+          'Daily Master',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: nanun,
+            fontWeight: .w800,
+            fontSize: 21,
+          ),
+        ),
+
+        SizedBox(height: 15),
+
+        Container(
+          width: sizew(context),
+          height: 220,
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(color: buttonColor.first.withAlpha(40), blurRadius: 15),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: .circular(18),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Image.asset(
+                    'assets/images/daily_master.png',
+                    fit: .contain,
+                  ),
+                ),
+                masterText(),
+                Positioned.fill(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: .circular(15),
+                      onTap: () async {
+                        ToastController.openWeb(
+                          'https://ko.wikipedia.org/wiki/타로',
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget masterText() => Positioned(
+    left: 20,
+    top: 25,
+    child: Column(
+      crossAxisAlignment: .start,
+      children: [
+        Text(
+          '당신만을 위한 상담',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: .w800,
+            fontFamily: nanun,
+            fontSize: 21,
+          ),
+        ),
+
+        Text(
+          '당신을 위해 모인 \'데일리 마스터\'와',
+          style: TextStyle(
+            color: Colors.white.withAlpha(210),
+            fontWeight: .w600,
+            fontFamily: nanun,
+            fontSize: 17,
+          ),
+        ),
+
+        Text(
+          '직접 이야기를 나누어 보세요.',
+          style: TextStyle(
+            color: Colors.white.withAlpha(210),
+            fontWeight: .w600,
+            fontFamily: nanun,
+            fontSize: 17,
+          ),
+        ),
+      ],
+    ),
+  );
 
   Widget tarotList() => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 18.0),
@@ -95,7 +262,7 @@ class _HomePageState extends State<HomePage> {
                     fontSize: 18,
                   ),
                 ),
-                SizedBox(height: 3,),
+                SizedBox(height: 3),
                 Text(
                   '${tarotSubtext1[index]}',
                   style: TextStyle(
@@ -113,6 +280,16 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ],
+            ),
+          ),
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () async {
+                  ToastController.toast('아직 준비중인 기능입니다!');
+                },
+              ),
             ),
           ),
         ],
@@ -150,6 +327,18 @@ class _HomePageState extends State<HomePage> {
                   fit: BoxFit.contain,
                 ),
                 soulCardText(),
+                Positioned.fill(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => SoulCardPage()),
+                        (route) => true,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

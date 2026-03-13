@@ -1,3 +1,4 @@
+import 'package:dailytarget/controller/user_controller.dart';
 import 'package:dailytarget/page/daily_target_flow.dart';
 import 'package:dailytarget/util/util.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
+  await UserController.init();
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   runApp(const MyApp());
 }

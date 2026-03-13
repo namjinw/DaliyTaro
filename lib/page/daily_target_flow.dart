@@ -33,6 +33,15 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (UserController.user.value.name.isNotEmpty) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+          (route) => false,
+        );
+        return;
+      }
+
       await Future.delayed(Duration(milliseconds: 500));
 
       moonShow = true;
@@ -50,6 +59,7 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
       btnShow = true;
       setState(() {});
     });
+
     super.initState();
   }
 
@@ -115,7 +125,7 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: List.generate(totalStep * 2 - 1, (index) {
               if (index.isOdd) {
-                return SizedBox(width: 2,);
+                return SizedBox(width: 2);
               }
               print(index);
               print(index ~/ 2);
@@ -195,13 +205,15 @@ class _DailyTargetFlowPageState extends State<DailyTargetFlowPage> {
     right: 0,
     left: 0,
     child: _index == 7
-        ? button(
-            () => Navigator.pushAndRemoveUntil(
+        ? button(() async {
+            await UserController.save();
+
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => HomePage()),
               (route) => false,
-            ),
-          )
+            );
+          })
         : Row(
             spacing: 15,
             mainAxisAlignment: .center,
