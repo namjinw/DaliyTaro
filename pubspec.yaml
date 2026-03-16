@@ -56,9 +56,11 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
+    - assets/data/
     - assets/fonts/
     - assets/icons/
     - assets/images/
+    - assets/images/tarot_cards/
   fonts:
     - family: NotoSansKR
       fonts:

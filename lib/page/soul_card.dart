@@ -1,6 +1,13 @@
+import 'dart:math';
+
+import 'package:dailytarget/controller/soul.dart';
+import 'package:dailytarget/controller/user_controller.dart';
 import 'package:dailytarget/page/widget/cloud.dart';
+import 'package:dailytarget/page/widget/soul_card_show.dart';
+import 'package:dailytarget/page/widget/soul_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 
 import '../util/util.dart';
 
@@ -12,6 +19,51 @@ class SoulCardPage extends StatefulWidget {
 }
 
 class _SoulCardPageState extends State<SoulCardPage> {
+  int soulNumber(DateTime time) {
+    int sum = time.year + time.month + time.day;
+    print(time);
+    print(sum);
+
+    while (sum >= 10) {
+      sum = digitSum(sum);
+    }
+
+    return sum;
+  }
+
+  int digitSum(int n) {
+    int total = 0;
+
+    while (n > 0) {
+      total += n % 10;
+      n ~/= 10;
+    }
+    print(total);
+
+    return total;
+  }
+
+  Future<void> cardShow() async {
+    if (SoulController.birthText == null) {
+      ShowSnacker(context, Icons.calendar_today, '생년월일을 먼저 입력해주세요!');
+      return;
+    }
+    if (UserController.user.value.moon < 10) {
+      ShowSnacker(context, Icons.motion_photos_on, '보유하신 달의 개수가 부족합니다!');
+      return;
+    }
+    UserController.addMoon(-10);
+    final soulNum = soulNumber(SoulController.birth);
+    SoulController.SearchCard(soulNum);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => SoulCardShowDialog(),
+      barrierColor: Colors.black,
+    );
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,18 +97,13 @@ class _SoulCardPageState extends State<SoulCardPage> {
         SizedBox(height: 50),
         birthPicker(),
         SizedBox(height: 45),
-        search()
+        search(),
       ],
     ),
   );
 
-  Widget search() => Column(
-    children: [
-      searchButton(),
-      SizedBox(height: 15,),
-      searchText()
-    ],
-  );
+  Widget search() =>
+      Column(children: [searchButton(), SizedBox(height: 15), searchText()]);
 
   Widget searchText() => Column(
     children: [
@@ -83,7 +130,8 @@ class _SoulCardPageState extends State<SoulCardPage> {
   Widget searchButton() => Material(
     color: Colors.transparent,
     child: InkWell(
-      onTap: () {},borderRadius: .circular(55),
+      onTap: cardShow,
+      borderRadius: .circular(55),
       child: Container(
         width: 270,
         height: 60,
@@ -95,7 +143,7 @@ class _SoulCardPageState extends State<SoulCardPage> {
           mainAxisAlignment: .center,
           children: [
             Image.asset('assets/images/moon.png', width: 32),
-            SizedBox(width: 10,),
+            SizedBox(width: 10),
             Text(
               '달 10개로 소울카드 찾기',
               style: TextStyle(
@@ -111,48 +159,66 @@ class _SoulCardPageState extends State<SoulCardPage> {
     ),
   );
 
-  Widget birthPicker() => Material(
-    color: Colors.transparent,
-    child: InkWell(
-      borderRadius: .circular(509),
-      onTap: () {},
-      child: Container(
-        width: 220,
-        height: 50,
-        decoration: BoxDecoration(
-          borderRadius: .circular(55),
-          border: .all(color: Colors.white.withAlpha(150), width: 1.5),
-        ),
-        child: Row(
-          mainAxisAlignment: .center,
-          children: [
-            Text(
-              '생년월일을 입력해주세요',
-              style: TextStyle(
-                color: Colors.white.withAlpha(150),
-                fontSize: 14,
-                fontWeight: .w600,
-              ),
-            ),
+  Widget birthPicker() {
+    final picked = SoulController.birthText == null;
 
-            SizedBox(width: 10),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: .circular(509),
+        onTap: () async {
+          final bool pick = await showDialog(
+            context: context,
+            builder: (context) => SoulPicker(),
+          );
 
-            Transform.flip(
-              flipX: true,
-              child: SvgPicture.asset(
-                'assets/icons/arrow_back_ios_new_24dp_E3E3E3_FILL0_wght100_GRAD0_opsz24.svg',
-                width: 18,
-                colorFilter: ColorFilter.mode(
-                  Colors.white.withAlpha(190),
-                  BlendMode.srcIn,
+          if (pick) {
+            SoulController.birthText = DateFormat(
+              'yyyy.MM.dd',
+            ).format(SoulController.birth);
+            setState(() {});
+          }
+        },
+        child: Container(
+          width: 220,
+          height: 50,
+          padding: .only(left: 8),
+          decoration: BoxDecoration(
+            borderRadius: .circular(55),
+            border: .all(color: Colors.white.withAlpha(150), width: 1.5),
+          ),
+          child: Row(
+            spacing: 8,
+            mainAxisAlignment: .center,
+            children: [
+              Text(
+                picked ? '생년월일을 입력해주세요' : SoulController.birthText!,
+                style: TextStyle(
+                  color: Colors.white.withAlpha(150),
+                  fontSize: picked ? 14 : 18,
+                  fontWeight: .w600,
                 ),
               ),
-            ),
-          ],
+
+              picked
+                  ? Transform.flip(
+                      flipX: true,
+                      child: SvgPicture.asset(
+                        'assets/icons/arrow_back_ios_new_24dp_E3E3E3_FILL0_wght100_GRAD0_opsz24.svg',
+                        width: 18,
+                        colorFilter: ColorFilter.mode(
+                          Colors.white.withAlpha(190),
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    )
+                  : SizedBox(),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 
   Widget text() {
     TextStyle defaultStyle = TextStyle(

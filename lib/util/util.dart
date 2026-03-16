@@ -25,3 +25,65 @@ ShowSnacker(context, icon, text) => ScaffoldMessenger.of(context).showSnackBar(
     ),
   ),
 );
+
+void myDialog(context, text) {
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      child: Container(
+        decoration: BoxDecoration(
+          color: background.first,
+          borderRadius: .circular(10),
+        ),
+        padding: .all(16),
+        height: 200,
+        child: Column(
+          mainAxisAlignment: .spaceBetween,
+          children: [
+            Image.asset('assets/images/Daily Tarot.png', width: 140,),
+            Text(
+              text,
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: .w600),
+            ),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                borderRadius: .circular(30),
+                child: Container(
+                  width: 60,
+                  height: 30,
+                  child: Center(
+                    child: Text('확인', style: TextStyle(color: Colors.white, fontWeight: .w600)),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+extension DateTimeExtension on DateTime {
+  DateTime copyWith({
+    int? year,
+    int? month,
+    int? day,
+    int? hour,
+    int? minute,
+    int? second,
+  }) {
+    return DateTime(
+      year ?? this.year,
+      month ?? this.month,
+      day ?? this.day,
+      hour ?? this.hour,
+      minute ?? this.minute,
+      second ?? this.second,
+    );
+  }
+}

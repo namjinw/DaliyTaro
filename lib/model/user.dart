@@ -27,13 +27,13 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       name: json['name'] ?? '',
-      age: json['age'] ?? '',
+      age: json['age'] ?? 0,
       gender: json['gender'] ?? '',
       birth: json['birth'] != null
           ? DateTime.parse(json['birth'])
           : DateTime.now(),
       birthTime: json['birthTime'] ?? '',
-      moon: json['moon'] ?? '',
+      moon: json['moon'] ?? 0,
     );
   }
 

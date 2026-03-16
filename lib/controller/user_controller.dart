@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dailytarget/controller/soul.dart';
 import 'package:dailytarget/model/user.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +14,7 @@ class UserController {
     prefs = await SharedPreferences.getInstance();
 
     await getUser();
+    await SoulController.getSoulCardInfo();
   }
 
   static Future<void> getUser() async {
@@ -34,7 +36,9 @@ class UserController {
 
   static Future<void> addMoon(int moon) async {
     final newUser = user.value;
-    newUser.moon += moon;
+    final moonCount = newUser.moon + moon;
+
+    newUser.moon = moonCount < 0 ? 0 : moonCount;
 
     user.value = User.fromJson(newUser.toJson());
 
