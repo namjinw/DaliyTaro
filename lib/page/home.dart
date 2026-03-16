@@ -1,7 +1,9 @@
+import 'package:dailytarget/controller/soul.dart';
 import 'package:dailytarget/controller/toast.dart';
 import 'package:dailytarget/controller/user_controller.dart';
 import 'package:dailytarget/page/moon_shop.dart';
 import 'package:dailytarget/page/soul_card.dart';
+import 'package:dailytarget/page/tarot.dart';
 import 'package:dailytarget/page/widget/cloud.dart';
 import 'package:dailytarget/util/util.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   final tarotText = ['인연타로', '열매타로'];
   final tarotSubtext1 = ['지금은 힘들지만 그래도,', '지금 생각하고 있는 일은'];
   final tarotSubtext2 = ['그 사람과 인연이 될 수 있을까?', '어떤 결과로 이어질까?'];
+  final tarotType = [TarotType.fruit, TarotType.love];
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +47,7 @@ class _HomePageState extends State<HomePage> {
     right: 20,
     child: ValueListenableBuilder(
       valueListenable: UserController.user,
-      builder: (context, value, child) =>  GestureDetector(
+      builder: (context, value, child) => GestureDetector(
         onTap: () => Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const MoonShop()),
@@ -235,14 +238,14 @@ class _HomePageState extends State<HomePage> {
             physics: BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             separatorBuilder: (context, index) => SizedBox(width: 15),
-            itemBuilder: (context, index) => listItem(index),
+            itemBuilder: (context, index) => listItem(index, tarotType[index]),
           ),
         ),
       ],
     ),
   );
 
-  Widget listItem(index) => Container(
+  Widget listItem(index, type) => Container(
     child: ClipRRect(
       borderRadius: .circular(12),
       child: Stack(
@@ -286,8 +289,13 @@ class _HomePageState extends State<HomePage> {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: () async {
-                  ToastController.toast('아직 준비중인 기능입니다!');
+                onTap: () {
+                  SoulController.type = type;
+                  setState(() {});
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => TarotPage()),
+                  );
                 },
               ),
             ),

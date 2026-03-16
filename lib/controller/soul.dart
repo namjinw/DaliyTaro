@@ -9,6 +9,7 @@ class SoulController {
   static String? birthText;
   static List<Soul>? soulCard;
   static Soul? selectedCard;
+  static TarotType type = TarotType.fruit;
 
   static Future<void> getSoulCardInfo() async {
     final String load = await rootBundle.loadString('assets/data/soul_cards_data.json');
@@ -24,4 +25,9 @@ class SoulController {
     final card = soulCard!.firstWhere((e) => e.number == cardNumber);
     selectedCard = card;
   }
+}
+
+enum TarotType {
+  fruit,
+  love
 }
