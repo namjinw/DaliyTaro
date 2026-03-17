@@ -15,6 +15,8 @@ class UserController {
 
     await getUser();
     await SoulController.getSoulCardInfo();
+    await SoulController.getFruitCardInfo();
+    await SoulController.getLoveCardInfo();
   }
 
   static Future<void> getUser() async {
